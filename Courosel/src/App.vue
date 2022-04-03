@@ -1,31 +1,70 @@
 <script>
 export default {
+  data() {
+    return {
+      cards: ["1", "2", "3", "4", "5"],
+    };
+  },
   methods: {
-    toggleSlider: function () {
+    toggleSlider: function (index) {
+      console.log(index);
       $(".carousel").addClass("show");
+      $(".carousel").attr("aria-hidden", "false");
       var $num = $(".card-carousel .my-card").length;
       var $even = $num / 2;
       var $odd = ($num + 1) / 2;
 
-      if ($num % 2 == 0) {
-        $(".card-carousel .my-card:nth-child(" + $even + ")").addClass(
-          "active"
-        );
-        $(".card-carousel .my-card:nth-child(" + $even + ")")
-          .prev()
-          .addClass("prev");
-        $(".card-carousel .my-card:nth-child(" + $even + ")")
-          .next()
-          .addClass("next");
-      } else {
-        $(".card-carousel .my-card:nth-child(" + $odd + ")").addClass("active");
-        $(".card-carousel .my-card:nth-child(" + $odd + ")")
-          .prev()
-          .addClass("prev");
-        $(".card-carousel .my-card:nth-child(" + $odd + ")")
-          .next()
-          .addClass("next");
-      }
+      $(".card-carousel .my-card:nth-child(" + index + ")").addClass("active");
+      $(".card-carousel .my-card:nth-child(" + index + ")")
+        .prev()
+        .addClass("prev");
+      $(".card-carousel .my-card:nth-child(" + index + ")")
+        .next()
+        .addClass("next");
+
+      // if ($num % 2 == 0) {
+      //   $(".card-carousel .my-card:nth-child(" + $even + ")").addClass(
+      //     "active"
+      //   );
+      //   $(".card-carousel .my-card:nth-child(" + $even + ")").attr(
+      //     "tabindex",
+      //     "0"
+      //   );
+      //   $(".card-carousel .my-card:nth-child(" + $even + ")").focus();
+      //   $(".card-carousel .my-card:nth-child(" + $even + ")")
+      //     .prev()
+      //     .addClass("prev");
+      //   $(".card-carousel .my-card:nth-child(" + $even + ")")
+      //     .next()
+      //     .addClass("next");
+      // } else {
+      //   $(".card-carousel .my-card:nth-child(" + $odd + ")").addClass("active");
+      //   $(".card-carousel .my-card:nth-child(" + $odd + ")").attr(
+      //     "tabindex",
+      //     "0"
+      //   );
+      //   // let ele = $(".card-carousel .my-card.active");
+      //   // ele[0].inert = false;
+      //   $(".card-carousel .my-card:nth-child(" + $odd + ")").focus();
+      //   $(".card-carousel .my-card:nth-child(" + $odd + ")")
+      //     .prev()
+      //     .addClass("prev");
+      //   $(".card-carousel .my-card:nth-child(" + $odd + ")")
+      //     .next()
+      //     .addClass("next");
+      // }
+    },
+    closeCard: function () {
+      $(".card-carousel").animate({ left: "0px" });
+      $(".card-carousel .my-card").siblings().removeClass("prev active next");
+      $(".carousel").removeClass("show");
+      $(".card-carousel .my-card").attr("tabindex", "-1");
+      $(".carousel").attr("aria-hidden", "false");
+    },
+    setNextTabindex: function () {
+      $(".card-carousel .my-card.next").attr("tabindex", "0");
+      // let tabEle = $(".card-carousel .my-card.next");
+      // tabEle[0].inert = false;
     },
   },
   mounted() {
@@ -50,14 +89,51 @@ export default {
       $(this).next().addClass("next");
     });
 
-    // close button event
+    $(".card-carousel .my-card").keydown(function (e) {
+      if (e.keyCode == 9) {
+        if ($(".card-carousel").is(":animated")) {
+          return;
+        }
+
+        var $slide = $(".card-carousel .active").width();
+
+        if ($(this).hasClass("next")) {
+          $(".card-carousel").animate({ left: "-=" + $slide });
+        } else if ($(this).hasClass("prev")) {
+          $(".card-carousel").animate({ left: "+=" + $slide });
+        }
+
+        $(this).removeClass("prev next");
+        $(this).siblings().removeClass("prev active next");
+
+        $(this).addClass("active");
+        $(this).prev().addClass("prev");
+        $(this).next().addClass("next");
+      }
+    });
+
+    // click to close button event
     $(".card-carousel .close-btn").on("click", function (event) {
       event.preventDefault();
       event.stopPropagation();
       $(".card-carousel").animate({ left: "0px" });
       $(".card-carousel .my-card").siblings().removeClass("prev active next");
       $(".carousel").removeClass("show");
+      $(".card-carousel .my-card").attr("tabindex", "-1");
     });
+
+    // Enter to close button event
+    // $(".card-carousel.my-card.active.close-btn").on(
+    //   "mouseenter",
+    //   function (event) {
+    //     event.preventDefault();
+    //     event.stopPropagation();
+    //     console.log("Enter pressed");
+    //     $(".card-carousel").animate({ left: "0px" });
+    //     $(".card-carousel .my-card").siblings().removeClass("prev active next");
+    //     $(".carousel").removeClass("show");
+    //   }
+    // );
 
     // Keyboard nav
     $("html body").keydown(function (e) {
@@ -76,48 +152,27 @@ export default {
 <template>
   <main>
     <div>
-      <button @click="toggleSlider">Show Corousel</button>
+      <button @click="toggleSlider(1)">Show Corousel</button>
+      <button @click="toggleSlider(2)">Show Corousel</button>
+      <button @click="toggleSlider(3)">Show Corousel</button>
+      <button @click="toggleSlider(4)">Show Corousel</button>
     </div>
-    <div class="carousel">
+    <section class="carousel" aria-hidden="false">
       <div class="card-carousel">
-        <div class="my-card">
-          111
-          <span class="close-btn">x</span>
-        </div>
-        <div class="my-card">
-          222
-          <span class="close-btn">x</span>
-        </div>
-        <div class="my-card">
-          333
-          <span class="close-btn">x</span>
-        </div>
-        <div class="my-card">
-          444
-          <span class="close-btn">x</span>
-        </div>
-        <div class="my-card">
-          555
-          <span class="close-btn">x</span>
-        </div>
-        <div class="my-card">
-          666
-          <span class="close-btn">x</span>
-        </div>
-        <div class="my-card">
-          777
-          <span class="close-btn">x</span>
-        </div>
-        <div class="my-card">
-          888
-          <span class="close-btn">x</span>
-        </div>
-        <div class="my-card">
-          999
-          <span class="close-btn">x</span>
+        <div v-for="card in cards" v-bind:key="card" class="my-card">
+          {{ card }}
+          <span
+            v-on:keyup.enter="closeCard"
+            class="close-btn"
+            role="button"
+            aria-label="Close Button"
+            tabindex="0"
+            >x</span
+          >
+          <button class="add-btn" @focus="setNextTabindex">Add</button>
         </div>
       </div>
-    </div>
+    </section>
   </main>
 </template>
 
@@ -205,13 +260,19 @@ main {
 }
 
 .carousel .card-carousel .my-card.next {
-  -webkit-transform: scale(0.8) translateY(-1rem) translateX(26rem);
-  transform: scale(0.8) translateY(-1rem) translateX(26rem);
+  -webkit-transform: scale(0.8) translateY(-1rem) translateX(0rem);
+  transform: scale(0.8) translateY(-1rem) translateX(0rem);
 }
 
 .carousel .card-carousel .my-card.prev {
-  -webkit-transform: scale(0.8) translateY(-1rem) translateX(-26rem);
-  transform: scale(0.8) translateY(-1rem) translateX(-26rem);
+  -webkit-transform: scale(0.8) translateY(-1rem) translateX(0rem);
+  transform: scale(0.8) translateY(-1rem) translateX(0rem);
+}
+
+.add-btn {
+  position: relative;
+  top: 80%;
+  left: 50%;
 }
 
 @media (min-width: 1024px) {
@@ -225,5 +286,18 @@ main {
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
+}
+
+[inert] {
+  pointer-events: none;
+  cursor: default;
+}
+
+[inert],
+[inert] * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 </style>
